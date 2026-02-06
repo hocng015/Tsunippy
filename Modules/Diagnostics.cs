@@ -48,7 +48,7 @@ namespace Tsunippy.Modules
         {
             if (!Config.DiagnosticsOverlay) return;
 
-            var animLock = Modules.Modules.GetInstance<AnimationLock>();
+            var animLock = global::Tsunippy.Modules.Modules.GetInstance<AnimationLock>();
             if (animLock == null) return;
 
             ImGui.SetNextWindowSize(new Vector2(300, 0) * ImGuiHelpers.GlobalScale);

@@ -99,7 +99,7 @@ namespace Tsunippy.Modules
                 encounterClipCount++;
 
                 // Track per-action
-                var animLockModule = Modules.Modules.GetInstance<AnimationLock>();
+                var animLockModule = global::Tsunippy.Modules.Modules.GetInstance<AnimationLock>();
                 var actionId = animLockModule?.LastActionID ?? 0;
                 if (actionId != 0)
                 {

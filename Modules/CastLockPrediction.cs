@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using static Tsunippy.Tsunippy;
@@ -80,8 +81,8 @@ namespace Tsunippy.Modules
             if (remaining > 0.05f) return; // Not close enough yet
 
             // Pre-apply the caster tax lock
-            var animLockModule = Modules.Modules.GetInstance<AnimationLock>();
-            var floor = animLockModule?.CurrentFloor ?? RTT.DynamicFloor.DefaultFloor;
+            var animLockModule = global::Tsunippy.Modules.Modules.GetInstance<AnimationLock>();
+            var floor = animLockModule?.CurrentFloor ?? global::Tsunippy.RTT.DynamicFloor.DefaultFloor;
             var predictedLock = Config.DefaultCasterTax + floor;
 
             if (!animLockModule?.IsDryRunEnabled ?? true)
@@ -99,8 +100,8 @@ namespace Tsunippy.Modules
         /// When the server responds for a cast action, correct the pre-applied lock.
         /// </summary>
         private unsafe void ReceiveActionEffect(uint casterEntityId, Character* casterPtr,
-            Vector3* targetPos, FFXIVClientStructs.FFXIV.Client.Game.ActionEffectHandler.Header* header,
-            FFXIVClientStructs.FFXIV.Client.Game.ActionEffectHandler.TargetEffects* effects,
+            Vector3* targetPos, ActionEffectHandler.Header* header,
+            ActionEffectHandler.TargetEffects* effects,
             GameObjectId* targetEntityIds, float oldLock, float newLock)
         {
             if (!lockApplied) return;
@@ -111,7 +112,7 @@ namespace Tsunippy.Modules
             isCasting = false;
             LastActualCastLock = newLock;
 
-            var animLockModule = Modules.Modules.GetInstance<AnimationLock>();
+            var animLockModule = global::Tsunippy.Modules.Modules.GetInstance<AnimationLock>();
             if (animLockModule?.IsDryRunEnabled ?? true) return;
 
             // The server's lock replaces ours. oldLock is what remains of our prediction.
@@ -128,7 +129,7 @@ namespace Tsunippy.Modules
                 PrintLog($"Cast Lock Corrected: predicted={F2MS(LastPredictedCastLock)} ms, server={F2MS(newLock)} ms, final={F2MS(adjustedLock)} ms");
         }
 
-        public override void Enable()
+        public override unsafe void Enable()
         {
             Game.OnCastBegin += CastBegin;
             Game.OnCastInterrupt += CastInterrupt;
@@ -136,7 +137,7 @@ namespace Tsunippy.Modules
             Game.OnReceiveActionEffect += ReceiveActionEffect;
         }
 
-        public override void Disable()
+        public override unsafe void Disable()
         {
             Game.OnCastBegin -= CastBegin;
             Game.OnCastInterrupt -= CastInterrupt;
